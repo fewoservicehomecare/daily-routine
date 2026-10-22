@@ -1,6 +1,6 @@
 // Daily Routine – service worker. Network-first (bypassing the HTTP cache), cache fallback for offline.
-var C = "dr-v3";
-var FILES = ["./", "index.html", "app.js?v=3", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+var C = "dr-v4";
+var FILES = ["./", "index.html", "app.js?v=4", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", function (e) {
   self.skipWaiting();
   e.waitUntil(caches.open(C).then(function (c) { return c.addAll(FILES.map(function (u) { return new Request(u, { cache: "reload" }); })); }));
