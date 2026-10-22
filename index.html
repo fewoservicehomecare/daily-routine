@@ -25,6 +25,14 @@ td.y{color:#2e7d5b;font-weight:bold}td.n{color:#ccc}
 <div class="tabs"><button data-v="today" class="on">Today</button><button data-v="history">History</button><button data-v="edit">Tasks</button></div>
 <div id="view"></div>
 </main>
-<script src="app.js"></script>
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");</script>
+<script src="app.js?v=3"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  var hadCtrl = !!navigator.serviceWorker.controller, reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () { if (hadCtrl && !reloaded) { reloaded = true; location.reload(); } });
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(function (reg) {
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) reg.update(); });
+  });
+}
+</script>
 </body></html>

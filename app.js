@@ -1,16 +1,20 @@
 "use strict";
 var KEY = "dailyRoutine.v1";
 function load() { try { var d = JSON.parse(localStorage.getItem(KEY)); if (d && d.tasks && d.days) return d; } catch (e) {} 
-  return { tasks: [{ id: "t1", name: "Get morning sunlight" }, { id: "t2", name: "Morning skincare" }, { id: "t3", name: "Gym" }, { id: "t4", name: "Stretching" }, { id: "t5", name: "Play Harmonium" }, { id: "t7", name: "Study Hindi" }, { id: "t6", name: "Evening skincare" }], days: {}, nextId: 8, mig: 1 }; }
-function migrate(d) { // one-time: add "Study Hindi" after Play Harmonium if missing
-  if ((d.mig || 0) >= 1) return d;
-  if (!d.tasks.some(function (t) { return t.name.trim().toLowerCase() === "study hindi"; })) {
-    var id, n = d.nextId || 100; do { id = "t" + n++; } while (d.tasks.some(function (t) { return t.id === id; }));
-    d.nextId = n; var i = d.tasks.findIndex(function (t) { return t.name === "Play Harmonium"; });
-    if (i < 0) i = d.tasks.findIndex(function (t) { return t.name === "Evening skincare"; }) - 1;
-    d.tasks.splice(i < -1 ? d.tasks.length : i + 1, 0, { id: id, name: "Study Hindi" });
+  return { tasks: [{ id: "t1", name: "Get morning sunlight" }, { id: "t2", name: "Morning skincare" }, { id: "t3", name: "Gym" }, { id: "t4", name: "Stretching" }, { id: "t5", name: "Play Harmonium" }, { id: "t7", name: "Study Hindi" }, { id: "t6", name: "Evening skincare" }], days: {}, nextId: 8, migrations: ["add-study-hindi"] }; }
+function migrate(d) { // each migration runs once per device, tracked in d.migrations
+  var done = d.migrations = d.migrations || [];
+  if (done.indexOf("add-study-hindi") < 0) {
+    if (!d.tasks.some(function (t) { return /hindi/i.test(t.name); })) {
+      var id, n = d.nextId || 100; do { id = "t" + n++; } while (d.tasks.some(function (t) { return t.id === id; }));
+      d.nextId = n;
+      var i = d.tasks.findIndex(function (t) { return /harmonium/i.test(t.name); });
+      if (i < 0) { var j = d.tasks.findIndex(function (t) { return /evening/i.test(t.name); }); i = j < 0 ? d.tasks.length - 1 : j - 1; }
+      d.tasks.splice(i + 1, 0, { id: id, name: "Study Hindi" });
+    }
+    done.push("add-study-hindi");
   }
-  d.mig = 1; return d; }
+  delete d.mig; return d; }
 var S = migrate(load()); localStorage.setItem(KEY, JSON.stringify(S));
 var view = "today", cur = today();
 function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
