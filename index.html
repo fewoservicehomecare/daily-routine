@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Daily Routine</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2e7d5b">
+<link rel="icon" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#f6f4ef;color:#222}
+header{background:#2e7d5b;color:#fff;padding:12px;display:flex;align-items:center;gap:8px;position:sticky;top:0}
+header h1{flex:1;font-size:1.15em;margin:0;text-align:center}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:#e3e0d8;cursor:pointer}
+header button{background:#ffffff30;color:#fff;font-size:1.3em;padding:6px 16px}
+main{max-width:640px;margin:auto;padding:12px}
+.task{display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:18px;margin:10px 0;font-size:1.25em;box-shadow:0 1px 3px #0002;user-select:none;cursor:pointer}
+.task .box{width:34px;height:34px;border:3px solid #2e7d5b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff}
+.task.done .box{background:#2e7d5b}.task.done .name{color:#888;text-decoration:line-through}
+.task .streak{margin-left:auto;font-size:.75em;color:#a55}
+.tabs{display:flex;gap:6px;margin:6px 0}.tabs button.on{background:#2e7d5b;color:#fff}
+.edit{display:flex;gap:6px;align-items:center;margin:8px 0}.edit input{flex:1;font:inherit;padding:10px;border:1px solid #ccc;border-radius:8px}
+.edit button{padding:10px}
+table{border-collapse:collapse;width:100%;font-size:.85em}td,th{text-align:center;padding:4px 2px}th.n{text-align:left}
+td.y{color:#2e7d5b;font-weight:bold}td.n{color:#ccc}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.muted{color:#777;font-size:.85em}
+</style></head><body>
+<header><button id="prev" aria-label="Previous day">‹</button><h1 id="date"></h1><button id="next" aria-label="Next day">›</button></header>
+<main>
+<div class="tabs"><button data-v="today" class="on">Today</button><button data-v="history">History</button><button data-v="edit">Tasks</button></div>
+<div id="view"></div>
+</main>
+<script src="app.js"></script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");</script>
+</body></html>
