@@ -1,8 +1,18 @@
 "use strict";
 var KEY = "dailyRoutine.v1";
 function load() { try { var d = JSON.parse(localStorage.getItem(KEY)); if (d && d.tasks && d.days) return d; } catch (e) {} 
-  return { tasks: [{ id: "t1", name: "Get morning sunlight" }, { id: "t2", name: "Morning skincare" }, { id: "t3", name: "Gym" }, { id: "t4", name: "Stretching" }, { id: "t5", name: "Play Harmonium" }, { id: "t6", name: "Evening skincare" }], days: {}, nextId: 7 }; }
-var S = load(), view = "today", cur = today();
+  return { tasks: [{ id: "t1", name: "Get morning sunlight" }, { id: "t2", name: "Morning skincare" }, { id: "t3", name: "Gym" }, { id: "t4", name: "Stretching" }, { id: "t5", name: "Play Harmonium" }, { id: "t7", name: "Study Hindi" }, { id: "t6", name: "Evening skincare" }], days: {}, nextId: 8, mig: 1 }; }
+function migrate(d) { // one-time: add "Study Hindi" after Play Harmonium if missing
+  if ((d.mig || 0) >= 1) return d;
+  if (!d.tasks.some(function (t) { return t.name.trim().toLowerCase() === "study hindi"; })) {
+    var id, n = d.nextId || 100; do { id = "t" + n++; } while (d.tasks.some(function (t) { return t.id === id; }));
+    d.nextId = n; var i = d.tasks.findIndex(function (t) { return t.name === "Play Harmonium"; });
+    if (i < 0) i = d.tasks.findIndex(function (t) { return t.name === "Evening skincare"; }) - 1;
+    d.tasks.splice(i < -1 ? d.tasks.length : i + 1, 0, { id: id, name: "Study Hindi" });
+  }
+  d.mig = 1; return d; }
+var S = migrate(load()); localStorage.setItem(KEY, JSON.stringify(S));
+var view = "today", cur = today();
 function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
 function pad(n) { return (n < 10 ? "0" : "") + n; }
 function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
@@ -58,7 +68,7 @@ document.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.t
 document.addEventListener("change", function (e) {
   if (e.target.dataset && e.target.dataset.r) { var n = e.target.value.trim(); S.tasks.forEach(function (t) { if (t.id === e.target.dataset.r && n) t.name = n; }); save(); render(); }
   if (e.target.id === "file" && e.target.files[0]) { var r = new FileReader(); r.onload = function () {
-    try { var d = JSON.parse(r.result); if (!d.tasks || !d.days) throw 0; if (confirm("Replace all current data with the imported file?")) { S = d; S.nextId = S.nextId || S.tasks.length + 100; save(); render(); } }
+    try { var d = JSON.parse(r.result); if (!d.tasks || !d.days) throw 0; if (confirm("Replace all current data with the imported file?")) { S = migrate(d); S.nextId = S.nextId || S.tasks.length + 100; save(); render(); } }
     catch (x) { alert("Not a valid Daily Routine backup file."); } }; r.readAsText(e.target.files[0]); }
 });
 document.addEventListener("visibilitychange", function () { if (!document.hidden) render(); });
